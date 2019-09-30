@@ -1,7 +1,9 @@
 from django.test import TestCase
 from selenium import webdriver
 import os
-
+from .forms import HashForm
+import hashlib
+from .models import Hash
 # class FunctionalTestCase(TestCase):
     #
     # def setUp(self):
@@ -19,7 +21,7 @@ import os
     #     text.send_keys('hello')
     #     self.browser.find_element_by_name('submit').click()
     #     self.assertIn('2CF24DBA5FB0A30E26E83B2AC5B9E29E1B161E5C1FA7425E73043362938B9824', self.browser.page_source)
-    #
+
     # def tearDown(self):
     #     self.browser.quit()
 
@@ -33,4 +35,15 @@ class UnitTestCase(TestCase):
     def test_hash_form(self):
         form = HashForm(data={'text': 'hello'})
         self.assertTrue(form.is_valid())
-        
+
+    def test_hash_func_works(self):
+        text_hash = hashlib.sha256('hello'.encode('utf-8')).hexdigest().upper()
+        self.assertEqual('2CF24DBA5FB0A30E26E83B2AC5B9E29E1B161E5C1FA7425E73043362938B9824', text_hash)
+
+    def test_hash_object(self):
+        hash = Hash()
+        hash.text = 'hello'
+        hash.hash = '2CF24DBA5FB0A30E26E83B2AC5B9E29E1B161E5C1FA7425E73043362938B9824'
+        hash.save()
+        pulled_hash = Hash.objects.get(hash='2CF24DBA5FB0A30E26E83B2AC5B9E29E1B161E5C1FA7425E73043362938B9824')
+        self.assertEqual(hash.text, pulled_hash)
